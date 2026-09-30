@@ -47,6 +47,11 @@ jobs:
           echo "version=${VERSION}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          platforms: arm64
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
 
@@ -64,7 +69,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           build-args: |
             BASE=ghcr.io/cloudnative-pg/postgresql:${{ matrix.base_tag }}
             PG_MAJOR=${{ matrix.pg_major }}
@@ -89,3 +94,4 @@ jobs:
           echo "| **TimescaleDB** | ${{ steps.config.outputs.version }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| **PostgreSQL** | ${{ matrix.pg_major }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| **Debian** | ${{ matrix.debian }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Platforms** | linux/amd64, linux/arm64 |" >> "$GITHUB_STEP_SUMMARY"
