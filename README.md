@@ -1,6 +1,6 @@
 # timescaledb-cnpg
 
-TimescaleDB extension image for [CloudNativePG](https://cloudnative-pg.io) `ImageVolume`.
+TimescaleDB extension image for [CloudNativePG](https://cloudnative-pg.io) `ImageVolume` built for both AMD64 and ARM64.
 
 Minimal `FROM scratch` image containing only the TimescaleDB shared libraries, extension control file, and SQL migration scripts — mountable via Kubernetes [ImageVolume](https://kubernetes.io/docs/concepts/storage/volumes/#image) into a CNPG PostgreSQL pod.
 
