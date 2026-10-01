@@ -52,14 +52,20 @@ spec:
 
 Follows the pattern from [postgres-extensions-containers](https://github.com/cloudnative-pg/postgres-extensions-containers):
 
-1. Installs `timescaledb-2-<version>-postgresql-18` from Timescale's packagecloud apt repository
-2. Copies only the extension files into a `FROM scratch` image:
+1. Installs `timescaledb-2-<version>-postgresql-18` (and the loader at the same version) from Timescale's packagecloud apt repository
+2. Extracts the previous release's package (the newest stable release in the repo older than `<version>`, overridable with the `PREV_EXT_VERSION` build arg)
+3. Copies only the extension files into a `FROM scratch` image:
    - `/lib/timescaledb.so` — loader module
    - `/lib/timescaledb-<version>.so` — core extension
    - `/lib/timescaledb-tsl-<version>.so` — TSL-licensed module (compression, caggs, etc.)
+   - `/lib/timescaledb-<prev>.so`, `/lib/timescaledb-tsl-<prev>.so` — previous release's libraries
    - `/share/extension/timescaledb*` — control file + SQL scripts
    - `/licenses/` — copyright files
-3. CNPG mounts the image via `ImageVolume` and configures `extension_control_path` + `dynamic_library_path`
+4. CNPG mounts the image via `ImageVolume` and configures `extension_control_path` + `dynamic_library_path`
+
+### Upgrades
+
+The loader loads `timescaledb-<installed version>.so` by filename, based on the version recorded in each database. Because the previous release's libraries ship alongside the current ones, a database still on the old version keeps working after the new image rolls out, until you run `ALTER EXTENSION timescaledb UPDATE` (or bump `version` on the CNPG `Database` resource). Only the current and the immediately preceding release are included, so don't skip more than one release between rollouts without updating the extension first.
 
 ## Image tags
 
